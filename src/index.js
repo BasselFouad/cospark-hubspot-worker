@@ -160,7 +160,9 @@ async function updateExistingContact(contactData, hubspotContact, env) {
           Object.entries(hubspotContact.properties).filter(([key]) => key !== 'email')
         ),
       };
-      
+      console.log("-------")
+      console.log(env.HUBSPOT_ACCESS_TOKEN)
+      console.log("---------")
       const updateResponse = await fetch(`https://api.hubapi.com/crm/v3/objects/contacts/${contactId}`, {
         method: 'PATCH',
         headers: {
