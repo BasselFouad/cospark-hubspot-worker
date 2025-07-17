@@ -1,4 +1,4 @@
-name = "cospark-hubspot-proxy"
+name = "hubspot-contacts-worker"
 main = "src/index.js"
 compatibility_date = "2023-12-01"
 
