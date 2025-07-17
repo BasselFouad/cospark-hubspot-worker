@@ -29,7 +29,12 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
-          secrets: |
-            HUBSPOT_ACCESS_TOKEN
         env:
-          HUBSPOT_ACCESS_TOKEN: ${{ secrets.HUBSPOT_ACCESS_TOKEN }} 
+          HUBSPOT_ACCESS_TOKEN: ${{ secrets.HUBSPOT_ACCESS_TOKEN }}
+
+      - name: Set secrets after deployment
+        run: |
+          echo "Setting HubSpot token as secret..."
+          echo "${{ secrets.HUBSPOT_ACCESS_TOKEN }}" | npx wrangler secret put HUBSPOT_ACCESS_TOKEN --env ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }} 
