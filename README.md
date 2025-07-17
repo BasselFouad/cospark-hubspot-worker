@@ -2,6 +2,8 @@
 
 A Cloudflare Worker that serves as a CORS-enabled proxy for HubSpot API integration. This worker allows your frontend application to securely send contact data to HubSpot without exposing your API keys or dealing with CORS issues.
 
+**🚀 Deployed automatically via GitHub + Cloudflare integration**
+
 ## Features
 
 - ✅ **CORS Support** - Handles preflight requests and allows cross-origin requests
@@ -11,6 +13,7 @@ A Cloudflare Worker that serves as a CORS-enabled proxy for HubSpot API integrat
 - ✅ **Environment Support** - Separate configurations for development and production
 - ✅ **Health Check** - Built-in health check endpoint for monitoring
 - ✅ **Secure Token Storage** - No API keys stored in code or config files
+- ✅ **Auto Deployment** - Automatic deployment via GitHub Actions
 
 ## API Endpoints
 
@@ -56,187 +59,243 @@ Returns the health status of the worker.
 }
 ```
 
-## Setup Instructions
+## 🚀 GitHub + Cloudflare Deployment Setup
 
-### 1. Install Dependencies
+### Prerequisites
 
-```bash
-npm install
-```
+1. **GitHub Account** - Repository for the code
+2. **Cloudflare Account** - For hosting the Worker
+3. **HubSpot Account** - With API access
 
-### 2. Get Your HubSpot Token
+### Step 1: Get Your Tokens
+
+#### HubSpot Token
 
 1. Go to HubSpot Settings → Integrations → Private Apps
 2. Create a new private app with these scopes:
    - `crm.objects.contacts.read`
    - `crm.objects.contacts.write`
    - `crm.schemas.contacts.read`
-3. Copy the access token (you'll use this in step 4)
+3. Copy the access token
 
-### 3. Login to Cloudflare
+#### Cloudflare API Token
+
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/profile/api-tokens)
+2. Click **Create Token**
+3. Use **Custom token** with these permissions:
+   - **Zone:Zone:Read** (for your domain)
+   - **Zone:Zone Settings:Read**
+   - **User:User Details:Read**
+   - **Account:Cloudflare Workers:Edit**
+4. Copy the token
+
+### Step 2: Create GitHub Repository
+
+1. **Create a new repository** on GitHub (or push this existing code)
+2. **Add GitHub Secrets** in your repository settings:
+   - Go to **Settings** → **Secrets and variables** → **Actions**
+   - Add these secrets:
+     - `CLOUDFLARE_API_TOKEN` - Your Cloudflare API token
+     - `HUBSPOT_ACCESS_TOKEN` - Your HubSpot access token
+
+### Step 3: Push Code to GitHub
 
 ```bash
-npx wrangler login
+# If starting fresh
+git init
+git branch -m main
+git add .
+git commit -m "Initial commit: CoSpark HubSpot Proxy Worker"
+
+# Add your GitHub repository as origin
+git remote add origin https://github.com/YOUR_USERNAME/cospark-hubspot-worker.git
+git push -u origin main
 ```
 
-### 4. Deploy the Worker
+### Step 4: Configure Cloudflare Workers
+
+1. **Go to Cloudflare Dashboard** → **Workers & Pages**
+2. **Create a new Worker** (if needed) or find your deployed worker
+3. **Set Environment Variables** in the worker settings:
+   - `HUBSPOT_ACCESS_TOKEN` - Your HubSpot token (encrypted)
+
+### Step 5: Automatic Deployment
+
+Once you push to the `main` branch, GitHub Actions will automatically:
+
+1. ✅ Install dependencies
+2. ✅ Deploy to Cloudflare Workers (production environment)
+3. ✅ Set up environment variables
+4. ✅ Your worker will be live at: `https://cospark-hubspot-proxy-production.YOUR_SUBDOMAIN.workers.dev`
+
+## 🔄 Development Workflow
+
+### Making Changes
+
+1. **Create a feature branch:**
+
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+2. **Make your changes** and commit:
+
+   ```bash
+   git add .
+   git commit -m "Add your feature"
+   ```
+
+3. **Push and create PR:**
+
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+4. **Create Pull Request** on GitHub
+
+   - This will deploy to development environment for testing
+
+5. **Merge to main** - Automatically deploys to production
+
+### Local Development (Optional)
 
 ```bash
-npm run deploy
-```
-
-### 5. Set Environment Variables (Choose one method)
-
-#### Method A: Via Cloudflare Dashboard (Recommended)
-
-1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
-2. Navigate to **Workers & Pages** → Find your worker `cospark-hubspot-proxy`
-3. Go to **Settings** → **Variables**
-4. Add Environment Variable:
-   - **Name**: `HUBSPOT_ACCESS_TOKEN`
-   - **Value**: Your HubSpot token
-   - **Encrypt**: ✅ (Important!)
-5. Click **Save and Deploy**
-
-#### Method B: Via Wrangler CLI (More Secure)
-
-```bash
-npx wrangler secret put HUBSPOT_ACCESS_TOKEN
-# Enter your HubSpot token when prompted
-```
-
-## Development
-
-### Local Development
-
-For local development, create a `.env` file (not committed to git):
-
-```bash
-# .env (local only - not committed)
-HUBSPOT_ACCESS_TOKEN=your_token_here
-```
-
-Then run:
-
-```bash
+npm install
 npm run dev
 ```
 
-This starts the worker locally at `http://localhost:8787`
-
-### Test Locally
+Create a `.env` file for local testing:
 
 ```bash
-npm run test
+# .env (not committed to git)
+HUBSPOT_ACCESS_TOKEN=your_token_here
 ```
 
-Runs the worker in local-only mode for testing
+## 🔧 Frontend Integration
 
-## Deployment
-
-### Development Deployment
-
-```bash
-npm run deploy
-```
-
-### Production Deployment
-
-```bash
-npm run publish
-```
-
-After deployment, your worker will be available at:
-`https://cospark-hubspot-proxy.your-subdomain.workers.dev`
-
-## Frontend Integration
-
-Update your frontend service to use the worker endpoint:
+Update your frontend service to use the deployed worker:
 
 ```typescript
 // Update your hubspotService.ts
-const WORKER_URL = 'https://cospark-hubspot-proxy.your-subdomain.workers.dev';
+const WORKER_URL =
+  "https://cospark-hubspot-proxy-production.YOUR_SUBDOMAIN.workers.dev";
 
-async createContact(contactData: ContactData): Promise<any> {
-  try {
-    const response = await fetch(`${WORKER_URL}/contacts`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: contactData.name,
-        email: contactData.email,
-        phone: contactData.phone,
-        school_name: contactData.school_name,
-        position: contactData.position,
-      }),
-    });
+export class HubSpotService {
+  async createContact(contactData: ContactData): Promise<any> {
+    try {
+      const response = await fetch(`${WORKER_URL}/contacts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: contactData.name,
+          email: contactData.email,
+          phone: contactData.phone,
+          school_name: contactData.school_name,
+          position: contactData.position,
+        }),
+      });
 
-    if (!response.ok) {
-      throw new Error(`Worker API error: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`Worker API error: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.message || "Failed to create contact");
+      }
+
+      return result.data;
+    } catch (error) {
+      console.error("Error creating contact via worker:", error);
+      throw error;
     }
-
-    const result = await response.json();
-
-    if (!result.success) {
-      throw new Error(result.message || 'Failed to create contact');
-    }
-
-    return result.data;
-  } catch (error) {
-    console.error('Error creating contact via worker:', error);
-    throw error;
   }
 }
 ```
 
-## Security Features
+## 🔒 Security Features
 
 - ✅ **No API Key Exposure** - HubSpot tokens stored securely in Cloudflare (encrypted)
 - ✅ **Origin Validation** - Only allows requests from configured domains
 - ✅ **Input Validation** - Validates all incoming data before processing
 - ✅ **Error Handling** - Doesn't expose internal errors to clients
 - ✅ **No Secrets in Code** - All sensitive data stored as encrypted environment variables
+- ✅ **GitHub Secrets** - API tokens stored securely in GitHub
 
-## Monitoring
+## 📊 Monitoring & Debugging
 
-- Check deployment status: `npx wrangler deployments list`
-- View logs: `npx wrangler tail`
-- Monitor via Cloudflare dashboard
+### View Deployment Status
 
-## Troubleshooting
+- Check **GitHub Actions** tab in your repository
+- Monitor **Cloudflare Dashboard** → **Workers & Pages**
 
-### Common Issues
-
-1. **CORS Errors**
-
-   - Verify your domain is in `ALLOWED_ORIGINS` in wrangler.toml
-   - Check that the worker is deployed and accessible
-
-2. **HubSpot API Errors**
-
-   - Verify your access token is correctly set in Cloudflare environment variables
-   - Ensure your HubSpot app has the required scopes
-
-3. **Environment Variable Issues**
-
-   - Check that `HUBSPOT_ACCESS_TOKEN` is set in Cloudflare Dashboard
-   - Ensure the variable is encrypted
-   - Redeploy after setting environment variables
-
-4. **Validation Errors**
-   - Check that all required fields (name, email, phone) are provided
-   - Verify email format is valid
-
-### Debug Mode
-
-Enable debug logs by viewing worker logs:
+### View Logs
 
 ```bash
-npx wrangler tail
+# Install wrangler locally for debugging
+npm install -g wrangler
+wrangler tail cospark-hubspot-proxy-production
 ```
 
-## License
+### Health Check
+
+Visit: `https://your-worker-url.workers.dev/health`
+
+## 🚨 Troubleshooting
+
+### Deployment Issues
+
+1. **GitHub Actions Failing**
+
+   - Check that `CLOUDFLARE_API_TOKEN` and `HUBSPOT_ACCESS_TOKEN` are set in GitHub Secrets
+   - Verify token permissions in Cloudflare
+
+2. **Worker Not Responding**
+
+   - Check Cloudflare Dashboard for error logs
+   - Verify environment variables are set in worker settings
+
+3. **CORS Errors**
+   - Update `ALLOWED_ORIGINS` in `wrangler.toml`
+   - Redeploy via git push
+
+### API Issues
+
+1. **HubSpot Errors**
+
+   - Verify token has correct scopes
+   - Check HubSpot API status
+
+2. **Validation Errors**
+   - Ensure required fields (name, email, phone) are provided
+   - Check email format
+
+## 📝 Environment Variables
+
+| Variable               | Description                     | Where to Set                          |
+| ---------------------- | ------------------------------- | ------------------------------------- |
+| `HUBSPOT_ACCESS_TOKEN` | HubSpot API token               | GitHub Secrets + Cloudflare Dashboard |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API token            | GitHub Secrets only                   |
+| `ALLOWED_ORIGINS`      | Comma-separated allowed domains | `wrangler.toml`                       |
+
+## 🏗️ Project Structure
+
+```
+cospark-hubspot-worker/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml          # GitHub Actions workflow
+├── src/
+│   └── index.js               # Worker main code
+├── .gitignore                 # Git ignore rules
+├── package.json               # Dependencies and scripts
+├── README.md                  # This file
+└── wrangler.toml             # Cloudflare Worker configuration
+```
+
+## 📄 License
 
 MIT

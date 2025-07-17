@@ -4,6 +4,7 @@
   "description": "Cloudflare Worker proxy for CoSpark AI HubSpot integration",
   "main": "src/index.js",
   "scripts": {
+    "build": "mkdir -p dist && cp src/index.js dist/ && cp wrangler.toml dist/",
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
     "test": "wrangler dev --local",

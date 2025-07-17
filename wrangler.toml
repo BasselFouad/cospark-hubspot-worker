@@ -2,11 +2,22 @@ name = "cospark-hubspot-proxy"
 main = "src/index.js"
 compatibility_date = "2023-12-01"
 
-# Environment variables will be set via Cloudflare Dashboard or wrangler secret
-# No sensitive data stored in this file
+# Environment variables will be set via Cloudflare Dashboard
+# No sensitive data stored in this file - perfect for GitHub
+
+[vars]
+ALLOWED_ORIGINS = "https://www.cosparkai.com,https://cosparkai.com,http://localhost:3000,http://localhost:5173"
+
+# Production environment (set via Cloudflare Dashboard)
+[env.production]
+name = "cospark-hubspot-proxy-production"
 
 [env.production.vars]
 ALLOWED_ORIGINS = "https://www.cosparkai.com,https://cosparkai.com"
+
+# Development environment  
+[env.development]
+name = "cospark-hubspot-proxy-dev"
 
 [env.development.vars]
 ALLOWED_ORIGINS = "http://localhost:3000,http://localhost:5173,https://www.cosparkai.com" 
