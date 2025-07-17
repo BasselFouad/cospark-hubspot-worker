@@ -1,0 +1,24 @@
+{
+  "name": "cospark-hubspot-worker",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker proxy for CoSpark AI HubSpot integration",
+  "main": "src/index.js",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "test": "wrangler dev --local",
+    "publish": "wrangler deploy --env production"
+  },
+  "keywords": [
+    "cloudflare",
+    "worker",
+    "hubspot",
+    "proxy",
+    "cors"
+  ],
+  "author": "CoSpark AI",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
