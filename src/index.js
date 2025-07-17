@@ -83,6 +83,9 @@ async function createHubSpotContact(contactData, env) {
     },
   };
   
+  console.log("-------")
+  console.log(env.HUBSPOT_ACCESS_TOKEN)
+  console.log("---------")
   try {
     // Try to create the contact
     const response = await fetch('https://api.hubapi.com/crm/v3/objects/contacts', {
