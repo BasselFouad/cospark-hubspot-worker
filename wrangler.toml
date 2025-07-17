@@ -1,4 +1,4 @@
-name = "cospark-hubspot-proxy"
+name = 'hubspot-contacts-worker'
 main = "src/index.js"
 compatibility_date = "2023-12-01"
 
@@ -21,3 +21,6 @@ name = "cospark-hubspot-proxy-dev"
 
 [env.development.vars]
 ALLOWED_ORIGINS = "http://localhost:3000,http://localhost:5173,https://www.cosparkai.com" 
+
+[observability.logs]
+enabled = true
